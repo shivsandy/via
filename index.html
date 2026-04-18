@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A Netlify-ready browser-style launcher with safe preview mode and external-tab support for protected sites."
+    />
+    <meta name="theme-color" content="#07111f" />
+    <title>Northstar Browser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+    <div class="bg-grid"></div>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-card">
+          <div class="brand-mark">NB</div>
+          <div>
+            <p class="eyebrow">Netlify browser shell</p>
+            <h1>Northstar Browser</h1>
+          </div>
+        </div>
+
+        <p class="sidebar-copy">
+          Preview sites that permit framing. Protected services, including Facebook, ChatGPT,
+          and banking portals, are launched in your browser tab instead of being proxied.
+        </p>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Quick launch</h2>
+            <span class="panel-meta">Safe default</span>
+          </div>
+          <div class="quick-actions">
+            <button class="chip" data-url="https://www.facebook.com" data-mode="external" type="button">
+              Facebook
+            </button>
+            <button class="chip" data-url="https://chatgpt.com" data-mode="external" type="button">
+              ChatGPT
+            </button>
+            <button class="chip" data-url="https://www.wikipedia.org" data-mode="embedded" type="button">
+              Wikipedia
+            </button>
+            <button class="chip chip-soft" data-focus="address" type="button">
+              Banking / login
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>History</h2>
+            <span class="panel-meta" id="historyCount">0 items</span>
+          </div>
+          <ul class="history-list" id="historyList" aria-label="Navigation history"></ul>
+        </section>
+
+        <section class="panel note">
+          <h2>Protected sites</h2>
+          <p>
+            Banking, login-heavy, and frame-blocking sites are intentionally opened in a new tab.
+            This keeps the app static and avoids proxying credentials through Netlify.
+          </p>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="chrome">
+          <div class="chrome-top">
+            <div class="window-dots" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="chrome-status">
+              <span class="status-pill" id="statusPill">Ready</span>
+              <span class="status-text" id="currentSite">Local home</span>
+            </div>
+          </div>
+
+          <div class="nav-row">
+            <button class="icon-btn" id="backBtn" type="button" aria-label="Back">
+              <span aria-hidden="true">&larr;</span>
+            </button>
+            <button class="icon-btn" id="forwardBtn" type="button" aria-label="Forward">
+              <span aria-hidden="true">&rarr;</span>
+            </button>
+            <button class="icon-btn" id="reloadBtn" type="button" aria-label="Reload">
+              <span aria-hidden="true">&#8635;</span>
+            </button>
+            <button class="icon-btn" id="homeBtn" type="button" aria-label="Home">
+              <span aria-hidden="true">&#8962;</span>
+            </button>
+
+            <form class="address-form" id="navForm">
+              <label class="sr-only" for="addressBar">Website or search query</label>
+              <input
+                id="addressBar"
+                type="text"
+                inputmode="url"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Type a website or search query"
+              />
+              <button class="primary-btn" type="submit">Launch</button>
+              <button class="secondary-btn" id="openTabBtn" type="button">Open tab</button>
+            </form>
+          </div>
+        </header>
+
+        <section class="viewport">
+          <div class="landing-view" id="landingView">
+            <div class="landing-copy">
+              <p class="eyebrow">Static web browser</p>
+              <h2>Use the preview pane where possible, and the full browser tab where required.</h2>
+              <p>
+                This app is designed for Netlify. It does not proxy websites. For services that
+                block embedding, use the external-tab flow and log in directly in your browser.
+              </p>
+            </div>
+
+            <div class="feature-grid">
+              <article class="feature-card">
+                <h3>Preview mode</h3>
+                <p>Embeddable sites load inside the main pane for fast browsing.</p>
+              </article>
+              <article class="feature-card">
+                <h3>External tab mode</h3>
+                <p>Protected sites open in your own browser session, preserving normal access.</p>
+              </article>
+              <article class="feature-card">
+                <h3>URL or search</h3>
+                <p>Enter a full address or a search query and the launcher will resolve it.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="frame-view hidden" id="frameView">
+            <iframe
+              id="browserFrame"
+              title="Browser preview"
+              referrerpolicy="no-referrer"
+              sandbox="allow-forms allow-modals allow-popups allow-scripts allow-same-origin"
+            ></iframe>
+          </div>
+
+          <div class="external-view hidden" id="externalView">
+            <div class="external-card">
+              <p class="eyebrow">Opened externally</p>
+              <h3 id="externalTitle">External tab launched</h3>
+              <p id="externalDescription">
+                This site was opened in a separate browser tab because it blocks framing or is
+                treated as a protected service.
+              </p>
+              <div class="external-actions">
+                <a class="primary-btn link-btn" id="externalLink" href="#" target="_blank" rel="noopener noreferrer">
+                  Open again
+                </a>
+                <button class="secondary-btn" id="returnHomeBtn" type="button">Back to browser</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
